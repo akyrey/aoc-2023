@@ -23,3 +23,25 @@ func TestFindFirstAndLastNumber(t *testing.T) {
 		}
 	}
 }
+
+func TestFindFirstAndLastNumberAsLettersToo(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected [2]string
+	}{
+		{"two1nine", [2]string{"2", "9"}},
+		{"eightwothree", [2]string{"8", "3"}},
+		{"abcone2threexyz", [2]string{"1", "3"}},
+		{"xtwone3four", [2]string{"2", "4"}},
+		{"4nineeightseven2", [2]string{"4", "2"}},
+		{"zoneight234", [2]string{"1", "4"}},
+		{"7pqrstsixteen", [2]string{"7", "6"}},
+	}
+
+	for _, test := range tests {
+		got, _ := findFirstAndLastNumberAsLettersToo(strings.Split(test.input, ""))
+		if got != test.expected {
+			t.Fatalf("wrong output. got %v expected %v", got, test.expected)
+		}
+	}
+}
