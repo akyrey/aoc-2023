@@ -17,7 +17,7 @@ func TestFindFirstAndLastNumber(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got, _ := findFirstAndLastNumber(strings.Split(test.input, ""))
+		got, _ := findFirstAndLastNumber(strings.Split(test.input, ""), false)
 		if got != test.expected {
 			t.Fatalf("wrong output. got %v expected %v", got, test.expected)
 		}
@@ -39,7 +39,7 @@ func TestFindFirstAndLastNumberAsLettersToo(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got, _ := findFirstAndLastNumberAsLettersToo(strings.Split(test.input, ""))
+		got, _ := findFirstAndLastNumber(strings.Split(test.input, ""), true)
 		if got != test.expected {
 			t.Fatalf("wrong output. got %v expected %v", got, test.expected)
 		}
