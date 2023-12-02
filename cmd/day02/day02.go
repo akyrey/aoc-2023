@@ -116,6 +116,41 @@ func findPossibleGamesIDs(games []Game) []int {
 	return possibleIDs
 }
 
+func minMax(array []int) (int, int) {
+	max := array[0]
+	min := array[0]
+
+	for _, value := range array {
+		if max < value {
+			max = value
+		}
+		if min > value {
+			min = value
+		}
+	}
+	return min, max
+}
+
+func findMinCubesPerGame(games []Game) [][]int {
+	res := make([][]int, 0)
+
+	for _, game := range games {
+		currentMin := make([]int, 0)
+
+		_, maxRed := minMax(game.Red)
+		_, maxBlue := minMax(game.Blue)
+		_, maxGreen := minMax(game.Green)
+
+		currentMin = append(currentMin, maxRed)
+		currentMin = append(currentMin, maxBlue)
+		currentMin = append(currentMin, maxGreen)
+
+		res = append(res, currentMin)
+	}
+
+	return res
+}
+
 func main() {
 	f, err := internal.GetFileToReadFrom(2, false)
 	internal.CheckError(err)
@@ -131,10 +166,14 @@ func main() {
 		games = append(games, *game)
 	}
 
-	possibleIDs := findPossibleGamesIDs(games)
+	minCubes := findMinCubesPerGame(games)
 	sum := 0
-	for _, id := range possibleIDs {
-		sum += id
+	for _, game := range minCubes {
+		power := 1
+		for _, value := range game {
+			power *= value
+		}
+		sum += power
 	}
 
 	fmt.Print(sum)
