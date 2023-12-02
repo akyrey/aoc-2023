@@ -17,6 +17,15 @@ func Contains[T int | string](s []T, e T) bool {
 	return false
 }
 
+func ContainsFunc[T int | string](s []T, check func(current T) bool) bool {
+	for _, a := range s {
+		if check(a) {
+			return true
+		}
+	}
+	return false
+}
+
 func CheckError(e error) {
 	if e != nil {
 		panic(e)
