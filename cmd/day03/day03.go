@@ -52,19 +52,24 @@ func scanLine(line string, index int) Map {
 	return symbolsMap
 }
 
+func areTokenOnAdjacentLines(a, b Token) bool {
+	return a.Line == b.Line-1 || a.Line == b.Line+1 || a.Line == b.Line
+}
+
+func areTokensTouching(a, b Token) bool {
+	return areTokenOnAdjacentLines(a, b) && a.Start >= b.Start-1 && a.End <= b.End+1
+}
+
 func findNumbersAdjacentsToSymbols(symbolsMap Map) []int {
 	valid := make([]int, 0)
 
 	for _, symbol := range symbolsMap[Symbol] {
 		numbers := make([]int, 0)
 		for _, number := range symbolsMap[Number] {
-			// If there are adjacent lines
-			if number.Line == symbol.Line-1 || number.Line == symbol.Line+1 || number.Line == symbol.Line {
-				if symbol.Start >= number.Start-1 && symbol.End <= number.End+1 {
-					value, err := strconv.Atoi(number.Char)
-					internal.CheckError(err)
-					numbers = append(numbers, value)
-				}
+			if areTokensTouching(symbol, number) {
+				value, err := strconv.Atoi(number.Char)
+				internal.CheckError(err)
+				numbers = append(numbers, value)
 			}
 		}
 		if len(numbers) == 2 {
