@@ -166,6 +166,7 @@ func main() {
 		games = append(games, *game)
 	}
 
+    _ = findPossibleGamesIDs(games)
 	minCubes := findMinCubesPerGame(games)
 	sum := 0
 	for _, game := range minCubes {
