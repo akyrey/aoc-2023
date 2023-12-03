@@ -47,7 +47,7 @@ func getMatches(line, expr string, index int) []Token {
 func scanLine(line string, index int) Map {
 	symbolsMap := make(Map, 0)
 	symbolsMap[Number] = getMatches(line, `\d+`, index)
-	symbolsMap[Symbol] = getMatches(line, `[^0-9|.]`, index)
+	symbolsMap[Symbol] = getMatches(line, `\*`, index)
 
 	return symbolsMap
 }
@@ -55,16 +55,24 @@ func scanLine(line string, index int) Map {
 func findNumbersAdjacentsToSymbols(symbolsMap Map) []int {
 	valid := make([]int, 0)
 
-	for _, number := range symbolsMap[Number] {
-		for _, symbol := range symbolsMap[Symbol] {
+	for _, symbol := range symbolsMap[Symbol] {
+		numbers := make([]int, 0)
+		for _, number := range symbolsMap[Number] {
 			// If there are adjacent lines
 			if number.Line == symbol.Line-1 || number.Line == symbol.Line+1 || number.Line == symbol.Line {
 				if symbol.Start >= number.Start-1 && symbol.End <= number.End+1 {
 					value, err := strconv.Atoi(number.Char)
 					internal.CheckError(err)
-					valid = append(valid, value)
+					numbers = append(numbers, value)
 				}
 			}
+		}
+		if len(numbers) == 2 {
+			gearRatio := 1
+			for _, n := range numbers {
+				gearRatio *= n
+			}
+			valid = append(valid, gearRatio)
 		}
 	}
 
@@ -94,10 +102,10 @@ func main() {
 	list := scanSymbols(f)
 	valid := findNumbersAdjacentsToSymbols(list)
 
-    sum := 0
-    for _, value := range valid {
-        sum += value
-    }
+	sum := 0
+	for _, value := range valid {
+		sum += value
+	}
 
 	fmt.Print(sum)
 }
