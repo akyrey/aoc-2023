@@ -113,6 +113,40 @@ func calcCardPoints(cards []Card) []int {
 	return res
 }
 
+func calcTotalCards(cards []Card) int {
+	count := 0
+	mapOfReplays := make(map[int]int, 0)
+
+	for i := 0; i < len(cards); {
+		count += 1
+		card := cards[i]
+		wins := make([]int, 0)
+		for _, number := range card.FoundNumbers {
+			if internal.Contains(card.WinningNumbers, number) {
+				wins = append(wins, number)
+			}
+		}
+
+		for i := range wins {
+			id := card.ID + i
+			if _, ok := mapOfReplays[id]; !ok {
+				mapOfReplays[id] = 0
+			}
+			mapOfReplays[id] += 1
+		}
+
+		if value, ok := mapOfReplays[i]; ok && value > 0 {
+			mapOfReplays[i] -= 1
+			// fmt.Printf("Processing card %d, decrementing current counter to %d, %v\n", i+1, mapOfReplays[i], mapOfReplays)
+		} else {
+			i += 1
+			// fmt.Printf("Finished processing card %d, current %v\n", i, mapOfReplays)
+		}
+	}
+
+	return count
+}
+
 func main() {
 	f, err := internal.GetFileToReadFrom(4, false)
 	internal.CheckError(err)
@@ -133,5 +167,9 @@ func main() {
 		sum += point
 	}
 
-	fmt.Print(sum)
+	// fmt.Println(sum)
+
+	totalWinnindCards := calcTotalCards(cards)
+
+	fmt.Println(totalWinnindCards)
 }
