@@ -101,7 +101,7 @@ func main() {
 	defer f.Close()
 
 	i := 0
-	seeds := make([]int, 0)
+	seedsRange := make([]int, 0)
 	mappings := make([]Info, 0)
 	var currentInfo *Info
 	scanner := bufio.NewScanner(f)
@@ -109,7 +109,7 @@ func main() {
 		line := strings.TrimSpace(scanner.Text())
 		// Scan seeds
 		if i == 0 {
-			seeds = scanSeeds(line)
+			seedsRange = scanSeeds(line)
 		} else if len(line) == 0 {
 			// Skip empty lines
 			if currentInfo != nil {
@@ -143,6 +143,13 @@ func main() {
 			}
 		}
 		i += 1
+	}
+
+	seeds := make([]int, 0)
+	for i := 0; i < len(seedsRange)-1; i += 2 {
+		for j := seedsRange[i]; j < seedsRange[i]+seedsRange[i+1]; j += 1 {
+			seeds = append(seeds, j)
+		}
 	}
 
 	locations := make([]int, 0)
