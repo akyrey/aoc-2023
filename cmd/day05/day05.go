@@ -23,14 +23,35 @@ type Info struct {
 }
 
 type Step struct {
-	Destination string
-	Result      int
+	Source string
+	Value  int
 }
 
 func (s Step) proceed(mappings []Info) int {
-	if s.Destination == "location" {
-		return s.Result
+	if s.Source == "location" {
+		return s.Value
 	}
+
+	next := internal.FindFunc(mappings, func(c Info) bool {
+		return c.Source == s.Source
+	})
+
+	fmt.Println(s)
+	if next == nil {
+		log.Fatal("cannot proceed to next step")
+	}
+
+	transValue := internal.FindFunc(next.Remappings, func(c Remapping) bool {
+		return s.Value >= c.SourceRangeStart && s.Value <= c.SourceRangeStart+c.RangeLength
+	})
+
+	if transValue != nil {
+		newStep := Step{Source: next.Destination, Value: transValue.DestRangeStart + s.Value - transValue.SourceRangeStart}
+		return newStep.proceed(mappings)
+	}
+
+	newStep := Step{Source: next.Destination, Value: s.Value}
+	return newStep.proceed(mappings)
 }
 
 func scanNumbers(line string) []int {
@@ -69,22 +90,13 @@ func scanMapLine(line string) *Info {
 }
 
 func calcLocation(seed int, mappings []Info) int {
-	start := internal.FindFunc(mappings, func(current Info) bool {
-		return current.Source == "seed"
-	})
-	if start == nil {
-		log.Fatal("Couldn't find start")
-	}
-	end := internal.FindFunc(mappings, func(current Info) bool {
-		return current.Destination == "location"
-	})
-	if end == nil {
-		log.Fatal("Couldn't find end")
-	}
+	step := Step{Source: "seed", Value: seed}
+
+	return step.proceed(mappings)
 }
 
 func main() {
-	f, err := internal.GetFileToReadFrom(5, true)
+	f, err := internal.GetFileToReadFrom(5, false)
 	internal.CheckError(err)
 	defer f.Close()
 
@@ -138,5 +150,11 @@ func main() {
 		locations = append(locations, calcLocation(seed, mappings))
 	}
 
-	fmt.Println(seeds, mappings)
+	min := locations[0]
+	for _, value := range locations {
+		if value < min {
+			min = value
+		}
+	}
+	fmt.Println(min)
 }
