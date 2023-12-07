@@ -116,30 +116,15 @@ func findPossibleGamesIDs(games []Game) []int {
 	return possibleIDs
 }
 
-func minMax(array []int) (int, int) {
-	max := array[0]
-	min := array[0]
-
-	for _, value := range array {
-		if max < value {
-			max = value
-		}
-		if min > value {
-			min = value
-		}
-	}
-	return min, max
-}
-
 func findMinCubesPerGame(games []Game) [][]int {
 	res := make([][]int, 0)
 
 	for _, game := range games {
 		currentMin := make([]int, 0)
 
-		_, maxRed := minMax(game.Red)
-		_, maxBlue := minMax(game.Blue)
-		_, maxGreen := minMax(game.Green)
+		_, maxRed := internal.MinMax(game.Red)
+		_, maxBlue := internal.MinMax(game.Blue)
+		_, maxGreen := internal.MinMax(game.Green)
 
 		currentMin = append(currentMin, maxRed)
 		currentMin = append(currentMin, maxBlue)

@@ -17,7 +17,7 @@ func Contains[T int | string](s []T, e T) bool {
 	return false
 }
 
-func FindFunc[T any](s []T, check func(current T) bool) *T {
+func Find[T any](s []T, check func(current T) bool) *T {
 	for _, a := range s {
 		if check(a) {
 			return &a
@@ -33,6 +33,31 @@ func ContainsFunc[T int | string](s []T, check func(current T) bool) bool {
 		}
 	}
 	return false
+}
+
+func Filter[T any](s []T, check func(current T) bool) []T {
+	filtered := make([]T, 0)
+	for _, a := range s {
+		if check(a) {
+			filtered = append(filtered, a)
+		}
+	}
+	return filtered
+}
+
+func MinMax(array []int) (int, int) {
+	max := array[0]
+	min := array[0]
+
+	for _, value := range array {
+		if max < value {
+			max = value
+		}
+		if min > value {
+			min = value
+		}
+	}
+	return min, max
 }
 
 func CheckError(e error) {
