@@ -26,7 +26,7 @@ func Find[T any](s []T, check func(current T) bool) *T {
 	return nil
 }
 
-func ContainsFunc[T int | string](s []T, check func(current T) bool) bool {
+func ContainsFunc[T any](s []T, check func(current T) bool) bool {
 	for _, a := range s {
 		if check(a) {
 			return true
