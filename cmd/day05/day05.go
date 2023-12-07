@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -24,15 +25,15 @@ type Info struct {
 
 type Step struct {
 	Source string
-	Value  int
+	Seed   Seed
 }
 
 func (s Step) proceed(mappings []Info) int {
 	if s.Source == "location" {
-		return s.Value
+		return s.Seed.Start
 	}
 
-	next := internal.FindFunc(mappings, func(c Info) bool {
+	next := internal.Find(mappings, func(c Info) bool {
 		return c.Source == s.Source
 	})
 
@@ -41,7 +42,8 @@ func (s Step) proceed(mappings []Info) int {
 		log.Fatal("cannot proceed to next step")
 	}
 
-	transValue := internal.FindFunc(next.Remappings, func(c Remapping) bool {
+	overlappings := getOverlappints(s.Seed.Start, s.Seed.End, next.Remappings)
+	transValue := internal.Find(next.Remappings, func(c Remapping) bool {
 		return s.Value >= c.SourceRangeStart && s.Value <= c.SourceRangeStart+c.RangeLength
 	})
 
@@ -50,8 +52,57 @@ func (s Step) proceed(mappings []Info) int {
 		return newStep.proceed(mappings)
 	}
 
-	newStep := Step{Source: next.Destination, Value: s.Value}
+	newStep := Step{Source: next.Destination, Seed: s.Seed}
 	return newStep.proceed(mappings)
+}
+
+type Seed struct {
+	Start int
+	End   int
+}
+
+func getOverlappints(start, end int, remappings []Remapping) []Seed {
+    // Overlappings are sorted by source range start
+	overlappings := internal.Filter(remappings, func(current Remapping) bool {
+		endRemapping := current.SourceRangeStart + current.RangeLength
+		return start < endRemapping && current.SourceRangeStart < end
+	})
+
+	if len(overlappings) == 0 {
+		return []Seed{{Start: start, End: end}}
+	}
+
+	seeds := make([]Seed, 0)
+	segmentStart := start
+	for i := 0; i < len(overlappings); i++ {
+		seedStart := segmentStart
+		// The start is inside an overlapping
+		if segmentStart >= overlappings[i].SourceRangeStart && segmentStart < overlappings[i].SourceRangeStart+overlappings[i].RangeLength {
+			seedStart = overlappings[i].DestRangeStart + segmentStart - overlappings[i].SourceRangeStart
+		}
+        seedEnd := end
+        if i < len(overlappings) - 1 {
+            seedEnd = overlappings[i+1].SourceRangeStart
+        }
+        if overlappings[i].SourceRangeStart + overlappings[i].RangeLength < end {
+            seedEnd = overlappings[i].SourceRangeStart + overlappings[i].RangeLength
+        }
+
+
+
+
+		startNextMapping := end
+		if i < len(overlappings)-1 {
+			startNextMapping = overlappings[i+1].SourceRangeStart
+		}
+		endRemapping := overlappings[i].SourceRangeStart + overlappings[i].RangeLength
+		minEnd, _ := internal.MinMax([]int{end, endRemapping, startNextMapping})
+		seed := Seed{Start: seedStart, End: minEnd}
+		segmentStart = minEnd + 1
+		seeds = append(seeds, seed)
+	}
+
+	return seeds
 }
 
 func scanNumbers(line string) []int {
@@ -89,14 +140,14 @@ func scanMapLine(line string) *Info {
 	return &Info{Source: tokens[0], Destination: tokens[1], Remappings: make([]Remapping, 0)}
 }
 
-func calcLocation(seed int, mappings []Info) int {
-	step := Step{Source: "seed", Value: seed}
+func calcLocation(seed Seed, mappings []Info) int {
+	step := Step{Source: "seed", Seed: seed}
 
 	return step.proceed(mappings)
 }
 
 func main() {
-	f, err := internal.GetFileToReadFrom(5, false)
+	f, err := internal.GetFileToReadFrom(5, true)
 	internal.CheckError(err)
 	defer f.Close()
 
@@ -145,23 +196,32 @@ func main() {
 		i += 1
 	}
 
-	seeds := make([]int, 0)
+	seeds := make([]Seed, 0)
 	for i := 0; i < len(seedsRange)-1; i += 2 {
-		for j := seedsRange[i]; j < seedsRange[i]+seedsRange[i+1]; j += 1 {
-			seeds = append(seeds, j)
-		}
+		seed := Seed{Start: seedsRange[i], End: seedsRange[i] + seedsRange[i+1]}
+		seeds = append(seeds, seed)
 	}
 
-	locations := make([]int, 0)
-	for _, seed := range seeds {
-		locations = append(locations, calcLocation(seed, mappings))
+	sort.Slice(seeds, func(i, j int) bool {
+		return seeds[i].Start < seeds[j].Start
+	})
+
+	for _, mapping := range mappings {
+		sort.Slice(mapping.Remappings, func(i, j int) bool {
+			return mapping.Remappings[i].SourceRangeStart < mapping.Remappings[j].SourceRangeStart
+		})
 	}
 
-	min := locations[0]
-	for _, value := range locations {
-		if value < min {
-			min = value
-		}
-	}
-	fmt.Println(min)
+	// locations := make([]int, 0)
+	// for _, seed := range seeds {
+	// 	locations = append(locations, calcLocation(seed, mappings))
+	// }
+	//
+	// min := locations[0]
+	// for _, value := range locations {
+	// 	if value < min {
+	// 		min = value
+	// 	}
+	// }
+	// fmt.Println(min)
 }
