@@ -32,18 +32,17 @@ func (r *Race) getWinResults() {
 	}
 }
 
-func scanNumbers(line string) []int {
+func scanNumbers(line string) int {
 	stringValues := strings.Split(strings.TrimSpace(line), " ")
-	values := make([]int, 0)
+	values := ""
 	for i := range stringValues {
-		trimmed := strings.TrimSpace(stringValues[i])
-		value, err := strconv.Atoi(trimmed)
-		if err == nil {
-			values = append(values, value)
-		}
+		values += strings.TrimSpace(stringValues[i])
 	}
 
-	return values
+	value, err := strconv.Atoi(values)
+	internal.CheckError(err)
+
+	return value
 }
 
 func main() {
@@ -53,31 +52,22 @@ func main() {
 
 	scanner := bufio.NewScanner(f)
 	isTimeLine := true
-	times := make([]int, 0)
-	distances := make([]int, 0)
+	race := Race{Results: make([]Result, 0)}
 	for scanner.Scan() {
 		line := scanner.Text()
 		tokens := strings.Split(line, ":")
 
 		if isTimeLine {
-			times = scanNumbers(tokens[1])
+			race.Time = scanNumbers(tokens[1])
 		} else {
-			distances = scanNumbers(tokens[1])
+			race.RecordDistance = scanNumbers(tokens[1])
 		}
 
 		isTimeLine = false
 	}
-
-	races := make([]Race, 0)
-	for i := range times {
-		race := Race{Time: times[i], RecordDistance: distances[i], Results: make([]Result, 0)}
-		race.getWinResults()
-		races = append(races, race)
-	}
+	race.getWinResults()
 
 	result := 1
-	for _, race := range races {
-		result *= len(race.Results)
-	}
+	result *= len(race.Results)
 	fmt.Println(result)
 }
