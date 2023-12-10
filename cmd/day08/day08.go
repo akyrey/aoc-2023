@@ -22,7 +22,7 @@ func scanNodeLine(line string) Node {
 	tokens := strings.Split(split[1], ", ")
 	node.Left = strings.Trim(tokens[0], "(")
 	node.Right = strings.Trim(tokens[1], ")")
-	fmt.Println(node)
+	// fmt.Println(node)
 
 	return node
 }
@@ -48,25 +48,37 @@ func main() {
 		}
 	}
 
-	fmt.Println(lines)
+	// fmt.Println(lines)
 
-	root, ok := lines["AAA"]
-	if !ok {
-		log.Fatalf("Could not find node AAA")
+	nodesToCheck := make([]string, 0)
+	for key := range lines {
+		if strings.HasSuffix(key, "A") {
+			nodesToCheck = append(nodesToCheck, key)
+		}
+	}
+	if len(nodesToCheck) == 0 {
+		log.Fatalf("Could not find node **A")
 	}
 
-	node := root
+	// fmt.Println(nodesToCheck)
 	i := 0
-	for node.Value != "ZZZ" {
-		move := instructions[i%len(instructions)]
-		switch move {
-		case "L":
-			node = lines[node.Left]
-		case "R":
-			node = lines[node.Right]
+	paths := make(map[string][]string, 0)
+	for index, node := range nodesToCheck {
+		paths[node] = make([]string, 0)
+		for !strings.HasSuffix(node, "Z") {
+			paths[node] = append(paths[node], node)
+			move := instructions[i%len(instructions)]
+			switch move {
+			case "L":
+				nodesToCheck[index] = lines[node].Left
+			case "R":
+				nodesToCheck[index] = lines[node].Right
+			}
 		}
+		paths[node] = append(paths[node], node)
+		fmt.Println(paths[node])
 		i += 1
 	}
 
-	fmt.Println(i)
+	fmt.Println(paths)
 }

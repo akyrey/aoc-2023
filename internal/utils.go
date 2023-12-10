@@ -45,6 +45,24 @@ func Filter[T any](s []T, check func(current T) bool) []T {
 	return filtered
 }
 
+func Every[T any](s []T, condition func(current T) bool) bool {
+	for _, a := range s {
+		if !condition(a) {
+			return false
+		}
+	}
+	return true
+}
+
+func Some[T any](s []T, condition func(current T) bool) bool {
+	for _, a := range s {
+		if condition(a) {
+			return true
+		}
+	}
+	return false
+}
+
 func MinMax(array []int) (int, int) {
 	max := array[0]
 	min := array[0]
