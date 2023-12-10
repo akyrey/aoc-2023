@@ -19,7 +19,7 @@ func scanLine(line string) []int {
 	return numbers
 }
 
-func findNextValue(sequence []int) int {
+func findPrevValue(sequence []int) int {
 	if internal.Every(sequence, func(current int) bool {
 		return current == 0
 	}) {
@@ -27,11 +27,11 @@ func findNextValue(sequence []int) int {
 	}
 
 	newSequence := make([]int, len(sequence)-1)
-	for i := 0; i < len(sequence)-1; i++ {
+	for i := len(sequence) - 2; i >= 0; i-- {
 		newSequence[i] = sequence[i+1] - sequence[i]
 	}
 
-	return newSequence[len(newSequence)-1] + findNextValue(newSequence)
+	return newSequence[0] - findPrevValue(newSequence)
 }
 
 func main() {
@@ -48,7 +48,7 @@ func main() {
 
 	sum := 0
 	for _, sequence := range lines {
-		sum += sequence[len(sequence)-1] + findNextValue(sequence)
+		sum += sequence[0] - findPrevValue(sequence)
 	}
 
 	fmt.Println(sum)
