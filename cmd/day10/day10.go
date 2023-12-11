@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/akyrey/aoc-2023/internal"
@@ -79,29 +80,74 @@ func walk(matrix [][]Direction, point Point, path *Path, seen [][]bool) {
 	}
 
 	current := matrix[point.Y][point.X]
+	prevPoint := path.Points[len(path.Points)-1]
 	path.Points = append(path.Points, point)
 	path.Length++
 	seen[point.Y][point.X] = true
+	nextPoint := Point{X: point.X, Y: point.Y}
 	switch current {
 	case NorthSouth:
-		walk(matrix, Point{X: point.X, Y: point.Y - 1}, path, seen)
-		walk(matrix, Point{X: point.X, Y: point.Y + 1}, path, seen)
+		if prevPoint.Y == point.Y-1 {
+			nextPoint.Y = point.Y + 1
+		} else {
+			nextPoint.Y = point.Y - 1
+		}
 	case EastWest:
-		walk(matrix, Point{X: point.X - 1, Y: point.Y}, path, seen)
-		walk(matrix, Point{X: point.X + 1, Y: point.Y}, path, seen)
+		if prevPoint.X == point.X-1 {
+			nextPoint.X = point.X + 1
+		} else {
+			nextPoint.X = point.X - 1
+		}
 	case NorthEast:
-		walk(matrix, Point{X: point.X + 1, Y: point.Y}, path, seen)
-		walk(matrix, Point{X: point.X, Y: point.Y - 1}, path, seen)
+		if prevPoint.X == point.X+1 {
+			nextPoint.Y = point.Y - 1
+		} else {
+			nextPoint.X = point.X + 1
+		}
 	case NorthWest:
-		walk(matrix, Point{X: point.X - 1, Y: point.Y}, path, seen)
-		walk(matrix, Point{X: point.X, Y: point.Y - 1}, path, seen)
+		if prevPoint.Y == point.Y-1 {
+			nextPoint.X = point.X - 1
+		} else {
+			nextPoint.Y = point.Y - 1
+		}
 	case SouthWest:
-		walk(matrix, Point{X: point.X - 1, Y: point.Y}, path, seen)
-		walk(matrix, Point{X: point.X, Y: point.Y + 1}, path, seen)
+		if prevPoint.X == point.X-1 {
+			nextPoint.Y = point.Y + 1
+		} else {
+			nextPoint.X = point.X - 1
+		}
 	case SouthEast:
-		walk(matrix, Point{X: point.X + 1, Y: point.Y}, path, seen)
-		walk(matrix, Point{X: point.X, Y: point.Y + 1}, path, seen)
+		if prevPoint.Y == point.Y+1 {
+			nextPoint.X = point.X + 1
+		} else {
+			nextPoint.Y = point.Y + 1
+		}
 	}
+
+	walk(matrix, nextPoint, path, seen)
+}
+
+func getStartDirection(matrix [][]Direction, start Point) []Direction {
+	if start.X < 0 || start.X >= len(matrix[0]) || start.Y < 0 || start.Y >= len(matrix) {
+		log.Fatal("Start point is outside of matrix")
+	}
+
+	directions := make([]Direction, 2)
+
+	if start.Y >= 1 {
+		directions = append(directions, matrix[start.Y-1][start.X])
+	}
+	if start.Y < len(matrix)-1 {
+		directions = append(directions, matrix[start.Y+1][start.X])
+	}
+	if start.X >= 1 {
+		directions = append(directions, matrix[start.Y][start.X-1])
+	}
+	if start.X < len(matrix[0])-1 {
+		directions = append(directions, matrix[start.Y][start.X+1])
+	}
+
+	return directions
 }
 
 func main() {
@@ -127,9 +173,9 @@ func main() {
 	for i := range seen {
 		seen[i] = make([]bool, len(matrix[0]))
 	}
+	startDirections := getStartDirection(matrix, *start)
+	if len(startDirections) != 2 {
+		log.Fatal("Start point has more than 2 directions")
+	}
 	walk(matrix, *start, path, seen)
-	fmt.Println(matrix)
-	fmt.Println(start)
-	fmt.Println(path)
-	fmt.Println(seen)
 }
