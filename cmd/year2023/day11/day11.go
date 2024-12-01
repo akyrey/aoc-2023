@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 
-	"github.com/akyrey/aoc-2023/internal"
+	"github.com/akyrey/aoc/internal"
 )
 
 func main() {

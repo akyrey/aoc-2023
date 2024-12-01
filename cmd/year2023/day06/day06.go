@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/akyrey/aoc-2023/internal"
+	"github.com/akyrey/aoc/internal"
 )
 
 const ACCELLERATION = 1

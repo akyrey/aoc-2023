@@ -1,3 +1,3 @@
-module github.com/akyrey/aoc-2023
+module github.com/akyrey/aoc
 
-go 1.20
+go 1.23

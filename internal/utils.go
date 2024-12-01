@@ -6,7 +6,10 @@ import (
 	"sort"
 )
 
-const Test bool = true
+const (
+	Test bool   = true
+	Year string = "2024"
+)
 
 func Contains[T int | string](s []T, e T) bool {
 	for _, a := range s {
@@ -87,9 +90,9 @@ func CheckError(e error) {
 func GetFileToReadFrom(day int, test bool) (*os.File, error) {
 	dayStr := getDayString(day)
 	if test {
-		return os.Open(fmt.Sprintf("cmd/day%s/test%s.txt", dayStr, dayStr))
+		return os.Open(fmt.Sprintf("cmd/year%s/day%s/test%s.txt", Year, dayStr, dayStr))
 	}
-	return os.Open(fmt.Sprintf("cmd/day%s/input%s.txt", dayStr, dayStr))
+	return os.Open(fmt.Sprintf("cmd/year%s/day%s/input%s.txt", Year, dayStr, dayStr))
 }
 
 func getDayString(day int) string {

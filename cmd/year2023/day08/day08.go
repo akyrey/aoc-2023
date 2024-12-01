@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/akyrey/aoc-2023/internal"
+	"github.com/akyrey/aoc/internal"
 )
 
 type Node struct {

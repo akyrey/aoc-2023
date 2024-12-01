@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/akyrey/aoc-2023/internal"
+	"github.com/akyrey/aoc/internal"
 )
 
 type SymbolKind int64
