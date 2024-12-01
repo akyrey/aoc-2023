@@ -62,7 +62,7 @@ type Seed struct {
 }
 
 func getOverlappints(start, end int, remappings []Remapping) []Seed {
-    // Overlappings are sorted by source range start
+	// Overlappings are sorted by source range start
 	overlappings := internal.Filter(remappings, func(current Remapping) bool {
 		endRemapping := current.SourceRangeStart + current.RangeLength
 		return start < endRemapping && current.SourceRangeStart < end
@@ -80,16 +80,13 @@ func getOverlappints(start, end int, remappings []Remapping) []Seed {
 		if segmentStart >= overlappings[i].SourceRangeStart && segmentStart < overlappings[i].SourceRangeStart+overlappings[i].RangeLength {
 			seedStart = overlappings[i].DestRangeStart + segmentStart - overlappings[i].SourceRangeStart
 		}
-        seedEnd := end
-        if i < len(overlappings) - 1 {
-            seedEnd = overlappings[i+1].SourceRangeStart
-        }
-        if overlappings[i].SourceRangeStart + overlappings[i].RangeLength < end {
-            seedEnd = overlappings[i].SourceRangeStart + overlappings[i].RangeLength
-        }
-
-
-
+		seedEnd := end
+		if i < len(overlappings)-1 {
+			seedEnd = overlappings[i+1].SourceRangeStart
+		}
+		if overlappings[i].SourceRangeStart+overlappings[i].RangeLength < end {
+			seedEnd = overlappings[i].SourceRangeStart + overlappings[i].RangeLength
+		}
 
 		startNextMapping := end
 		if i < len(overlappings)-1 {

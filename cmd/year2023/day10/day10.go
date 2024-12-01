@@ -170,5 +170,5 @@ func main() {
 		seen[i] = make([]bool, len(matrix[0]))
 	}
 	walk(matrix, *start, path, seen)
-	fmt.Println(path.Length/2)
+	fmt.Println(path.Length / 2)
 }
