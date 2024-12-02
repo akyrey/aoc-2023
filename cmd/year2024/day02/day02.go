@@ -26,23 +26,27 @@ func main() {
 		line := scanner.Text()
 		records := strings.Split(line, " ")
 		safe := true
-		for i, j, decremental := 0, 1, false; safe && j < len(records); i, j = i+1, j+1 {
-			prev, err := strconv.Atoi(records[i])
+		for i, j, decremental, dampned := 0, 1, false, -1; safe && j < len(records); i, j = i+1, j+1 {
+			prevIndex := i
+			if dampned == i {
+				prevIndex = i - 1
+			}
+			prev, err := strconv.Atoi(records[prevIndex])
 			internal.CheckError(err)
 			current, err := strconv.Atoi(records[j])
 			internal.CheckError(err)
 			diff := current - prev
-			if i == 0 {
+			if prevIndex == 0 {
 				decremental = diff < 0
 			}
-			if (diff < 0 && !decremental) || (diff > 0 && decremental) {
-				safe = false
-				continue
-			}
 			absDiff := int(math.Abs(float64(diff)))
-			if absDiff < MIN || absDiff > MAX {
-				safe = false
-				continue
+			if (diff < 0 && !decremental) || (diff > 0 && decremental) || absDiff < MIN || absDiff > MAX {
+				if dampned == -1 {
+					dampned = i
+				} else {
+					safe = false
+					continue
+				}
 			}
 		}
 		if safe {
