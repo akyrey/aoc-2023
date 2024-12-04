@@ -24,14 +24,28 @@ func main() {
 
 	for i := range matrix {
 		for j := range matrix[i] {
-			total += wordFound(matrix, i, j)
+			total += wordFoundPart2(matrix, i, j)
 		}
 	}
 
 	fmt.Printf("%d\n", total)
 }
 
-func wordFound(matrix [][]string, row int, col int) int {
+func wordFoundPart2(matrix [][]string, row int, col int) int {
+	wordToSearch := []string{"MAS", "SAM"}
+	count := 0
+	if row+2 < len(matrix) && col+2 < len(matrix[row]) {
+		word1 := matrix[row][col] + matrix[row+1][col+1] + matrix[row+2][col+2]
+		word2 := matrix[row][col+2] + matrix[row+1][col+1] + matrix[row+2][col]
+		if slices.Contains(wordToSearch, word1) && slices.Contains(wordToSearch, word2) {
+			count += 1
+		}
+	}
+
+	return count
+}
+
+func wordFoundPart1(matrix [][]string, row int, col int) int {
 	wordToSearch := []string{"XMAS", "SAMX"}
 	count := 0
 	if col+3 < len(matrix[row]) {
