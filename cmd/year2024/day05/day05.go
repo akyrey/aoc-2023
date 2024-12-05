@@ -38,9 +38,12 @@ func main() {
 	fmt.Printf("Updates: %v\n", updates)
 
 	for _, update := range updates {
-		if isValid(rules, update) {
+		if !isValid(rules, update) {
+			for !isValid(rules, update) {
+				update = fixOrdering(rules, update)
+			}
 			mid := len(update) / 2
-			fmt.Printf("Valid update: %v, mid: %d, value: %d\n", update, mid, update[mid])
+			fmt.Printf("Fixed update: %v, mid: %d, value: %d\n", update, mid, update[mid])
 			total += update[mid]
 		}
 	}
@@ -89,6 +92,28 @@ func isValid(rules map[int][]int, pages []int) bool {
 		}
 	}
 	return true
+}
+
+func fixOrdering(rules map[int][]int, pages []int) []int {
+	result := make([]int, len(pages))
+	_ = copy(result, pages)
+	for i := 0; i < len(result); {
+		page := result[i]
+		switched := false
+		if values, ok := rules[page]; ok {
+			for _, v := range values {
+				j := slices.Index(result[i:], v)
+				if j >= 0 {
+					fmt.Printf("Page %d Value %d. Swapping %d and %d\n", page, v, result[i], result[i+j])
+					result[i], result[i+j] = result[i+j], result[i]
+				}
+			}
+		}
+		if !switched {
+			i++
+		}
+	}
+	return result
 }
 
 func containsAll(array []int, values []int) bool {
