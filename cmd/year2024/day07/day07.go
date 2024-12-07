@@ -12,8 +12,9 @@ import (
 type Operator string
 
 const (
-	ADD      Operator = "+"
-	MULTIPLY Operator = "*"
+	ADD           Operator = "+"
+	MULTIPLY      Operator = "*"
+	CONCATENATION Operator = "||"
 )
 
 type Operation struct {
@@ -68,7 +69,7 @@ func main() {
 }
 
 func (o *Operation) findCombinations() [][]Operator {
-	operations := []Operator{ADD, MULTIPLY}
+	operations := []Operator{ADD, MULTIPLY, CONCATENATION}
 	count := len(o.Values) - 1
 	combinations := make([][]Operator, count)
 	for i := 0; i < count; i++ {
@@ -82,7 +83,7 @@ func (o *Operation) findCombinations() [][]Operator {
 
 func (o *Operation) isValid() bool {
 	res := o.calculate()
-	fmt.Printf("Calculating: %v with result: %d\n", o, res)
+	// fmt.Printf("Calculating: %v with result: %d\n", o, res)
 	return o.Result == res
 }
 
@@ -95,6 +96,7 @@ func (o *Operation) calculate() int {
 	operators := make([]Operator, len(o.Operators))
 	copy(values, o.Values)
 	copy(operators, o.Operators)
+	var err error
 	for len(values) > 0 {
 		value, values = values[0], values[1:]
 		if first {
@@ -107,6 +109,10 @@ func (o *Operation) calculate() int {
 				result += value
 			case MULTIPLY:
 				result *= value
+			case CONCATENATION:
+				concatenation := fmt.Sprintf("%d%d", result, value)
+				result, err = strconv.Atoi(concatenation)
+				internal.CheckError(err)
 			}
 		}
 	}
